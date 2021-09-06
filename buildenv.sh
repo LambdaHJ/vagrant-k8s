@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# 修改源
+curl -o /etc/yum.repos.d/fedora.repo http://mirrors.aliyun.com/repo/fedora.repo
+curl -o /etc/yum.repos.d/fedora-updates.repo http://mirrors.aliyun.com/repo/fedora-updates.repo
+dnf makecache
+dnf update -y
+
+# 关闭swap
+swapoff -a
+sed -i '/\tswap\t/d' /etc/fstab
+
+
+# 加载ipvs
+dnf install -y ipvsadm
+
+# 安装containerd
+dnf install -y containerd
+systemctl daemon-reload
+systemctl enable containerd --now
+
+# 加载网络模块
+#use nf_conntrack instead of nf_conntrack_ipv4 for Linux kernel 4.19 and later
+cat <<EOF > /etc/modules-load.d/k8s.conf
+br_netfilter
+ip_vs
+ip_vs_rr
+ip_vs_wrr
+ip_vs_sh
+nf_conntrack
+EOF
+modprobe -- br_netfilter
+modprobe -- ip_vs
+modprobe -- ip_vs_rr
+modprobe -- ip_vs_wrr
+modprobe -- ip_vs_sh
+modprobe -- nf_conntrack
+
+
+# 配置转发
+cat <<EOF > /etc/sysctl.d/k8s.conf
+net.ipv4.ip_forward = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+sysctl --system
+
+
+# 安装k8s
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+EOF
+setenforce 0
+yum install -y kubelet kubeadm kubectl
+systemctl enable kubelet && systemctl start kubelet
+
+# 添加 completion，最好放入 .bashrc 中
+# source <(kubectl completion bash)
+# source <(kubeadm completion bash)
