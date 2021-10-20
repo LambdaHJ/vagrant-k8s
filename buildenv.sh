@@ -6,22 +6,31 @@ curl -o /etc/yum.repos.d/fedora-updates.repo http://mirrors.aliyun.com/repo/fedo
 dnf makecache
 dnf update -y
 
+
 # 关闭swap
 swapoff -a
 sed -i '/\tswap\t/d' /etc/fstab
 
+# 安装基础软件
+dnf install bash-completion -y
 
 # 加载ipvs
 dnf install -y ipvsadm
 
 # 安装containerd
 dnf install -y containerd
+
+mkdir -p /etc/containerd
+containerd config default | tee /etc/containerd/config.toml
+sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+
 systemctl daemon-reload
 systemctl enable containerd --now
 
 # 加载网络模块
 #use nf_conntrack instead of nf_conntrack_ipv4 for Linux kernel 4.19 and later
 cat <<EOF > /etc/modules-load.d/k8s.conf
+overlay
 br_netfilter
 ip_vs
 ip_vs_rr
@@ -29,6 +38,7 @@ ip_vs_wrr
 ip_vs_sh
 nf_conntrack
 EOF
+modprobe -- overlay
 modprobe -- br_netfilter
 modprobe -- ip_vs
 modprobe -- ip_vs_rr
@@ -57,7 +67,7 @@ repo_gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
 EOF
 setenforce 0
-yum install -y kubelet kubeadm kubectl
+yum install -y kubelet-1.21.5 kubeadm-1.21.5 kubectl-1.21.5
 systemctl enable kubelet && systemctl start kubelet
 
 # 添加 completion，最好放入 .bashrc 中

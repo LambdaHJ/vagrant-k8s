@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus
+spec:
+  serviceAccountName: prometheus
+  resources:
+    requests:
+      memory: 400Mi
+  enableAdminAPI: true
+  podMonitorNamespaceSelector: {}
+  podMonitorSelector: {}
+  serviceMonitorNamespaceSelector: {}
+  serviceMonitorSelector: {}
+  ruleNamespaceSelector: {}
+  ruleSelector: {}
+  storage:
+    volumeClaimTemplate:
+      spec: 
+        accessModes: ['ReadWriteOnce']
+        storageClassName: fast-disks
+        resources:
+          requests: 
+            storage: 1Gi
+        selector:
+          matchLabels:
+            name: example-local-pv
+
