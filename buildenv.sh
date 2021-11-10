@@ -1,24 +1,22 @@
 #!/bin/bash
 
 # 修改源
-curl -o /etc/yum.repos.d/fedora.repo http://mirrors.aliyun.com/repo/fedora.repo
-curl -o /etc/yum.repos.d/fedora-updates.repo http://mirrors.aliyun.com/repo/fedora-updates.repo
-dnf makecache
-dnf update -y
+yum makecache
+yum update -y
 
+# 安装基础软件
+yum install yum-utils bash-completion  -y
 
 # 关闭swap
 swapoff -a
 sed -i '/\tswap\t/d' /etc/fstab
 
-# 安装基础软件
-dnf install bash-completion -y
-
 # 加载ipvs
-dnf install -y ipvsadm
+yum install -y ipvsadm
 
 # 安装containerd
-dnf install -y containerd
+yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+yum install -y containerd
 
 mkdir -p /etc/containerd
 containerd config default | tee /etc/containerd/config.toml
@@ -67,7 +65,7 @@ repo_gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
 EOF
 setenforce 0
-yum install -y kubelet-1.21.5 kubeadm-1.21.5 kubectl-1.21.5
+yum install -y kubelet kubeadm kubectl
 systemctl enable kubelet && systemctl start kubelet
 
 # 添加 completion，最好放入 .bashrc 中

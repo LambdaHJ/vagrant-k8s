@@ -1,5 +1,5 @@
 Vagrant.configure("2") do |config|
-  config.vm.box = "fedora/34-cloud-base"
+  config.vm.box = "almalinux/8"
   config.vm.synced_folder '/volumes/data/vms', '/sync', type: "rsync"
   config.vm.provider :libvirt do |libvirt|
     libvirt.memory = 4096
