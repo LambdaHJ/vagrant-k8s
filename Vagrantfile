@@ -1,6 +1,5 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "almalinux/8"
-  config.vm.synced_folder '/volumes/data/vms', '/sync', type: "rsync"
   config.vm.provider :libvirt do |libvirt|
     libvirt.memory = 4096
   end
@@ -25,9 +24,5 @@ Vagrant.configure("2") do |config|
   config.vm.define "node3" do |node3|
     node3.vm.hostname="node3"
     node3.vm.network "public_network", :dev => "eno1", :ip => "192.168.1.103"
-  end
-  config.vm.define "node4" do |node4|
-    node4.vm.hostname="node4"
-    node4.vm.network "public_network", :dev => "eno1", :ip => "192.168.1.104"
   end
 end
