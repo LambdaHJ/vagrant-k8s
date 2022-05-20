@@ -9,7 +9,7 @@ yum install yum-utils bash-completion  -y
 
 # 关闭swap
 swapoff -a
-sed -i '/\tswap\t/d' /etc/fstab
+sed -i '/ swap / s/^/#/' /etc/fstab
 
 # 加载ipvs
 yum install -y ipvsadm
