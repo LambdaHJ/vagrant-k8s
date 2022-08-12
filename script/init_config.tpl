@@ -1,21 +1,20 @@
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: InitConfiguration
 localAPIEndpoint:
-  advertiseAddress: 192.168.121.155
+  advertiseAddress: ${API_SERVER_LOCAL_IP}
   bindPort: 6443
 ---
 kind: ClusterConfiguration
 apiServer:
   certSANs:
-  - 192.168.1.100
+  - ${API_SERVER_PUBLIC_IP}
 apiVersion: kubeadm.k8s.io/v1beta2
 certificatesDir: /etc/kubernetes/pki
 clusterName: kubernetes
 imageRepository: registry.aliyuncs.com/google_containers
 networking:
-  dnsDomain: cluster.local
-  serviceSubnet: 172.16.0.0/24
-  podSubnet: 192.168.255.0/24
+  serviceSubnet: ${SERVICE_CIDR}
+  podSubnet: ${POD_CIDR}
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration

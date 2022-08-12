@@ -44,7 +44,7 @@ mode: ipvs
 
 其他地址根据情况修改
 
-### 赋值config.yaml到master
+### 赋值config.yaml到master 
 
 
 ### 初始化集群
