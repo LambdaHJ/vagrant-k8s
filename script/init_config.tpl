@@ -1,4 +1,4 @@
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
 localAPIEndpoint:
   advertiseAddress: ${API_SERVER_LOCAL_IP}
@@ -7,8 +7,9 @@ localAPIEndpoint:
 kind: ClusterConfiguration
 apiServer:
   certSANs:
+  - ${API_SERVER_LOCAL_IP}
   - ${API_SERVER_PUBLIC_IP}
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 certificatesDir: /etc/kubernetes/pki
 clusterName: kubernetes
 imageRepository: registry.aliyuncs.com/google_containers
