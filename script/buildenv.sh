@@ -35,6 +35,8 @@ ip_vs_rr
 ip_vs_wrr
 ip_vs_sh
 nf_conntrack
+ip_tables
+iptable_filter
 EOF
 modprobe -- overlay
 modprobe -- br_netfilter
@@ -43,7 +45,8 @@ modprobe -- ip_vs_rr
 modprobe -- ip_vs_wrr
 modprobe -- ip_vs_sh
 modprobe -- nf_conntrack
-
+modprobe -- ip_tables
+modprobe -- iptable_filter
 
 # 配置转发
 cat <<EOF > /etc/sysctl.d/k8s.conf
