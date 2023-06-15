@@ -11,6 +11,10 @@ yum install yum-utils bash-completion  -y
 swapoff -a
 sed -i '/ swap / s/^/#/' /etc/fstab
 
+# disable SELinux
+setenforce 0
+sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
 # 加载ipvs
 yum install -y ipvsadm
 
@@ -35,6 +39,8 @@ ip_vs_rr
 ip_vs_wrr
 ip_vs_sh
 nf_conntrack
+ip_tables
+iptable_filter
 EOF
 modprobe -- overlay
 modprobe -- br_netfilter
@@ -43,7 +49,8 @@ modprobe -- ip_vs_rr
 modprobe -- ip_vs_wrr
 modprobe -- ip_vs_sh
 modprobe -- nf_conntrack
-
+modprobe -- ip_tables
+modprobe -- iptable_filter
 
 # 配置转发
 cat <<EOF > /etc/sysctl.d/k8s.conf
@@ -64,9 +71,11 @@ gpgcheck=1
 repo_gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
 EOF
-setenforce 0
 yum install -y kubelet kubeadm kubectl
 systemctl enable kubelet && systemctl start kubelet
+
+# install helm
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 # 添加 completion，最好放入 .bashrc 中
 # source <(kubectl completion bash)
