@@ -3,6 +3,8 @@ kind: InitConfiguration
 localAPIEndpoint:
   advertiseAddress: ${API_SERVER_LOCAL_IP}
   bindPort: 6443
+skipPhases:
+  - addon/kube-proxy
 ---
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
