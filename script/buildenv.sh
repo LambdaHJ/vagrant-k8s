@@ -2,7 +2,6 @@
 
 # 修改源
 yum makecache
-yum update -y
 
 # 安装基础软件
 yum install yum-utils bash-completion  -y
@@ -14,9 +13,6 @@ sed -i '/ swap / s/^/#/' /etc/fstab
 # disable SELinux
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
-
-# 加载ipvs
-yum install -y ipvsadm
 
 # 安装containerd
 yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
@@ -74,9 +70,18 @@ EOF
 yum install -y kubelet kubeadm kubectl
 systemctl enable kubelet && systemctl start kubelet
 
-# install helm
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+# install helm on master
+HOST=$(hostname -f)
+if [ $HOST = "master" ];then
+  set +e
+  curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  set -e
+fi
 
 # 添加 completion，最好放入 .bashrc 中
-# source <(kubectl completion bash)
-# source <(kubeadm completion bash)
+if [ $HOST = "master" ];then
+  set +e
+  echo "source <(kubectl completion bash)" >> /home/vagrant/.bashrc
+  echo "source <(kubeadm completion bash)" >> /home/vagrant/.bashrc
+  set -e
+fi
