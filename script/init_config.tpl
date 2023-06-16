@@ -6,7 +6,7 @@ localAPIEndpoint:
 skipPhases:
   - addon/kube-proxy
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 apiServer:
   certSANs:
